@@ -17,6 +17,15 @@ const int MotorPin = 2;
 
 void setup() {
     Serial.begin(9600);
+
+    pinMode(MotorLedPin, OUTPUT);
+    pinMode(LowHumidityLedPin, OUTPUT);
+
+    pinMode(HighBatteryLedPin, OUTPUT);
+    pinMode(MediumBatteryLedPin, OUTPUT);
+    pinMode(LowBatteryLedPin, OUTPUT);
+
+    pinMode(MotorPin, OUTPUT);
 }
 
 void loop() {
