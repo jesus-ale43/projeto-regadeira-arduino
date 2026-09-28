@@ -23,6 +23,7 @@ unsigned long lastSensorRead = 0;
 bool watering = false;
 unsigned long wateringStartTime = 0;
 
+
 void setup() {
     Serial.begin(9600);
 
@@ -45,9 +46,15 @@ void setup() {
     digitalWrite(MotorPin, LOW);
 }
 
+
 void loop() {
 
     unsigned long currentTime = millis();
+
+    // --------------------------------------------------
+    // Se o motor estiver regando, verifica se já passaram
+    // 5 segundos.
+    // --------------------------------------------------
 
     if (watering) {
 
@@ -66,9 +73,19 @@ void loop() {
         return;
     }
 
+
+    // --------------------------------------------------
+    // Checagem da umidade a cada 20 segundos
+    // --------------------------------------------------
+
     if (currentTime - lastSensorRead >= SensorReadInterval) {
 
         lastSensorRead = currentTime;
+
+
+        // -------------------------
+        // Bateria
+        // -------------------------
 
         int batteryValue = analogRead(BatteryPotenciometerPin);
 
@@ -81,6 +98,7 @@ void loop() {
         );
 
         batteryLevel = constrain(batteryLevel, 0, 100);
+
 
         if (batteryLevel >= 70) {
 
@@ -103,6 +121,11 @@ void loop() {
             digitalWrite(LowBatteryLedPin, HIGH);
         }
 
+
+        // -------------------------
+        // Umidade do solo
+        // -------------------------
+
         int humiditySensorValue = analogRead(HumiditySensorPin);
 
         int humidityLevel = map(
@@ -114,6 +137,11 @@ void loop() {
         );
 
         humidityLevel = constrain(humidityLevel, 0, 100);
+
+
+        // -------------------------
+        // Umidade desejada
+        // -------------------------
 
         int maxHumidityValue = analogRead(MaxHumidityPotenciometerPin);
 
@@ -127,6 +155,11 @@ void loop() {
 
         maxHumidity = constrain(maxHumidity, 0, 100);
 
+
+        // -------------------------
+        // Reservatório
+        // -------------------------
+
         int reservatoryValue = analogRead(ReservatoryPotenciometerPin);
 
         int reservatoryLevel = map(
@@ -139,6 +172,11 @@ void loop() {
 
         reservatoryLevel = constrain(reservatoryLevel, 0, 100);
 
+
+        // -------------------------
+        // Verifica se o solo está seco
+        // -------------------------
+
         bool soilIsDry = humidityLevel < maxHumidity;
 
         if (soilIsDry) {
@@ -148,10 +186,21 @@ void loop() {
             digitalWrite(LowHumidityLedPin, LOW);
         }
 
+
+        // -------------------------
+        // Verifica água e bateria
+        // -------------------------
+
         bool enoughWater = reservatoryLevel > 0;
         bool enoughBattery = batteryLevel > 0;
 
+
+        // -------------------------
+        // Decide se deve regar
+        // -------------------------
+
         bool motorOn = soilIsDry && enoughWater && enoughBattery;
+
 
         if (motorOn) {
 
@@ -172,6 +221,11 @@ void loop() {
 
             Serial.println("Motor: DESLIGADO");
         }
+
+
+        // -------------------------
+        // Serial
+        // -------------------------
 
         Serial.println("-----------------------------");
 
