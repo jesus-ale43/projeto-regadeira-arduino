@@ -23,6 +23,40 @@ unsigned long lastSensorRead = 0;
 
 bool watering = false;
 unsigned long wateringStartTime = 0;
+bool postWateringCheckPending = false;
+
+void updateBatteryLeds()
+{
+    int batteryValue = analogRead(BatteryPotenciometerPin);
+
+    int batteryLevel = map(
+        batteryValue,
+        0,
+        1023,
+        0,
+        100);
+
+    batteryLevel = constrain(batteryLevel, 0, 100);
+
+    if (batteryLevel >= 70)
+    {
+        digitalWrite(HighBatteryLedPin, HIGH);
+        digitalWrite(MediumBatteryLedPin, LOW);
+        digitalWrite(LowBatteryLedPin, LOW);
+    }
+    else if (batteryLevel >= 30)
+    {
+        digitalWrite(HighBatteryLedPin, LOW);
+        digitalWrite(MediumBatteryLedPin, HIGH);
+        digitalWrite(LowBatteryLedPin, LOW);
+    }
+    else
+    {
+        digitalWrite(HighBatteryLedPin, LOW);
+        digitalWrite(MediumBatteryLedPin, LOW);
+        digitalWrite(LowBatteryLedPin, HIGH);
+    }
+}
 
 void setup()
 {
@@ -52,6 +86,9 @@ void loop()
 
     unsigned long currentTime = millis();
 
+    // Atualiza os LEDs da bateria mesmo durante os intervalos de espera.
+    updateBatteryLeds();
+
     // --------------------------------------------------
     // Se o motor estiver regando, verifica se já passaram
     // 10 segundos.
@@ -67,6 +104,7 @@ void loop()
             digitalWrite(MotorLedPin, LOW);
 
             watering = false;
+            postWateringCheckPending = true;
             lastSensorRead = currentTime - SensorReadInterval + PostWateringCheckDelay;
 
             Serial.println("Motor: DESLIGADO");
@@ -85,6 +123,14 @@ void loop()
     {
 
         lastSensorRead = currentTime;
+
+        bool isPostWateringCheck = postWateringCheckPending;
+        postWateringCheckPending = false;
+
+        if (isPostWateringCheck)
+        {
+            Serial.println("Verificacao apos rega iniciada.");
+        }
 
         // -------------------------
         // Bateria
@@ -205,6 +251,11 @@ void loop()
             watering = true;
             wateringStartTime = currentTime;
 
+            if (isPostWateringCheck)
+            {
+                Serial.println("Umidade ainda baixa. Repetindo ciclo de rega.");
+            }
+
             Serial.println("Motor: LIGADO");
             Serial.println("Regando por 10 segundos...");
         }
@@ -215,6 +266,22 @@ void loop()
             digitalWrite(MotorLedPin, LOW);
 
             Serial.println("Motor: DESLIGADO");
+
+            if (isPostWateringCheck)
+            {
+                if (!soilIsDry)
+                {
+                    Serial.println("Umidade desejada atingida. Aguardando 2 minutos para a proxima verificacao.");
+                }
+                else if (!enoughWater)
+                {
+                    Serial.println("Regada interrompida: reservatorio sem agua suficiente.");
+                }
+                else if (!enoughBattery)
+                {
+                    Serial.println("Regada interrompida: bateria sem carga suficiente.");
+                }
+            }
         }
 
         // -------------------------
