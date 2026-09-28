@@ -50,6 +50,27 @@ void loop() {
 
     batteryLevel = constrain(batteryLevel, 0, 100);
 
+    if (batteryLevel >= 70) {
+
+        digitalWrite(HighBatteryLedPin, HIGH);
+        digitalWrite(MediumBatteryLedPin, LOW);
+        digitalWrite(LowBatteryLedPin, LOW);
+
+    }
+    else if (batteryLevel >= 30) {
+
+        digitalWrite(HighBatteryLedPin, LOW);
+        digitalWrite(MediumBatteryLedPin, HIGH);
+        digitalWrite(LowBatteryLedPin, LOW);
+
+    }
+    else {
+
+        digitalWrite(HighBatteryLedPin, LOW);
+        digitalWrite(MediumBatteryLedPin, LOW);
+        digitalWrite(LowBatteryLedPin, HIGH);
+    }
+
     int humiditySensorValue = analogRead(HumiditySensorPin);
 
     int humidityLevel = map(
