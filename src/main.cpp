@@ -115,4 +115,9 @@ void loop() {
     else {
         digitalWrite(LowHumidityLedPin, LOW);
     }
+
+    bool enoughWater = reservatoryLevel > 0;
+    bool enoughBattery = batteryLevel > 0;
+
+    bool motorOn = soilIsDry && enoughWater && enoughBattery;
 }
