@@ -122,9 +122,18 @@ void loop() {
     bool motorOn = soilIsDry && enoughWater && enoughBattery;
 
     if (motorOn) {
+
         digitalWrite(MotorPin, HIGH);
+        digitalWrite(MotorLedPin, HIGH);
+
+        Serial.println("Motor: LIGADO");
+
     }
     else {
+
         digitalWrite(MotorPin, LOW);
+        digitalWrite(MotorLedPin, LOW);
+
+        Serial.println("Motor: DESLIGADO");
     }
 }
