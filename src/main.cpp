@@ -61,4 +61,16 @@ void loop() {
     );
 
     maxHumidity = constrain(maxHumidity, 0, 100);
+
+    int reservatoryValue = analogRead(ReservatoryPotenciometerPin);
+
+    int reservatoryLevel = map(
+        reservatoryValue,
+        0,
+        1023,
+        0,
+        100
+    );
+
+    reservatoryLevel = constrain(reservatoryLevel, 0, 100);
 }
