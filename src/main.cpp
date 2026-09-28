@@ -106,4 +106,11 @@ void loop() {
     );
 
     reservatoryLevel = constrain(reservatoryLevel, 0, 100);
+
+    if (humidityLevel < maxHumidity) {
+        digitalWrite(LowHumidityLedPin, HIGH);
+    }
+    else {
+        digitalWrite(LowHumidityLedPin, LOW);
+    }
 }
