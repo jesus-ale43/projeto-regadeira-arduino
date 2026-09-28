@@ -49,4 +49,16 @@ void loop() {
     );
 
     humidityLevel = constrain(humidityLevel, 0, 100);
+
+    int maxHumidityValue = analogRead(MaxHumidityPotenciometerPin);
+
+    int maxHumidity = map(
+        maxHumidityValue,
+        0,
+        1023,
+        0,
+        100
+    );
+
+    maxHumidity = constrain(maxHumidity, 0, 100);
 }
