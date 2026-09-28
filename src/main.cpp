@@ -15,6 +15,11 @@ const int HumiditySensorPin = A0;
 
 const int MotorPin = 2;
 
+const unsigned long WateringDuration = 5000;
+
+bool watering = false;
+unsigned long wateringStartTime = 0;
+
 void setup() {
     Serial.begin(9600);
 
@@ -38,6 +43,26 @@ void setup() {
 }
 
 void loop() {
+
+    unsigned long currentTime = millis();
+
+    if (watering) {
+
+        if (currentTime - wateringStartTime >= WateringDuration) {
+
+            digitalWrite(MotorPin, LOW);
+            digitalWrite(MotorLedPin, LOW);
+
+            watering = false;
+
+            Serial.println("Motor: DESLIGADO");
+            Serial.println("Regada concluida. Aguardando proxima verificacao.");
+            Serial.println("-----------------------------");
+        }
+
+        return;
+    }
+
     int batteryValue = analogRead(BatteryPotenciometerPin);
 
     int batteryLevel = map(
@@ -126,7 +151,11 @@ void loop() {
         digitalWrite(MotorPin, HIGH);
         digitalWrite(MotorLedPin, HIGH);
 
+        watering = true;
+        wateringStartTime = currentTime;
+
         Serial.println("Motor: LIGADO");
+        Serial.println("Regando por 5 segundos...");
 
     }
     else {
