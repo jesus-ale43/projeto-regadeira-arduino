@@ -107,7 +107,9 @@ void loop() {
 
     reservatoryLevel = constrain(reservatoryLevel, 0, 100);
 
-    if (humidityLevel < maxHumidity) {
+    bool soilIsDry = humidityLevel < maxHumidity;
+
+    if (soilIsDry) {
         digitalWrite(LowHumidityLedPin, HIGH);
     }
     else {
