@@ -172,5 +172,31 @@ void loop() {
 
             Serial.println("Motor: DESLIGADO");
         }
+
+        Serial.println("-----------------------------");
+
+        Serial.print("Bateria: ");
+        Serial.print(batteryLevel);
+        Serial.println("%");
+
+        Serial.print("Umidade do solo: ");
+        Serial.print(humidityLevel);
+        Serial.println("%");
+
+        Serial.print("Umidade maxima: ");
+        Serial.print(maxHumidity);
+        Serial.println("%");
+
+        Serial.print("Reservatorio: ");
+        Serial.print(reservatoryLevel);
+        Serial.println("%");
+
+        Serial.print("Solo seco: ");
+        Serial.println(soilIsDry ? "SIM" : "NAO");
+
+        Serial.print("Motor: ");
+        Serial.println(motorOn ? "LIGADO" : "DESLIGADO");
+
+        Serial.println("-----------------------------");
     }
 }
