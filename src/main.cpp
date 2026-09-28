@@ -15,16 +15,17 @@ const int HumiditySensorPin = A0;
 
 const int MotorPin = 2;
 
-const unsigned long SensorReadInterval = 20000;
-const unsigned long WateringDuration = 5000;
+const unsigned long SensorReadInterval = 120000;
+const unsigned long WateringDuration = 10000;
+const unsigned long PostWateringCheckDelay = 20000;
 
 unsigned long lastSensorRead = 0;
 
 bool watering = false;
 unsigned long wateringStartTime = 0;
 
-
-void setup() {
+void setup()
+{
     Serial.begin(9600);
 
     pinMode(MotorLedPin, OUTPUT);
@@ -46,42 +47,44 @@ void setup() {
     digitalWrite(MotorPin, LOW);
 }
 
-
-void loop() {
+void loop()
+{
 
     unsigned long currentTime = millis();
 
     // --------------------------------------------------
     // Se o motor estiver regando, verifica se já passaram
-    // 5 segundos.
+    // 10 segundos.
     // --------------------------------------------------
 
-    if (watering) {
+    if (watering)
+    {
 
-        if (currentTime - wateringStartTime >= WateringDuration) {
+        if (currentTime - wateringStartTime >= WateringDuration)
+        {
 
             digitalWrite(MotorPin, LOW);
             digitalWrite(MotorLedPin, LOW);
 
             watering = false;
+            lastSensorRead = currentTime - SensorReadInterval + PostWateringCheckDelay;
 
             Serial.println("Motor: DESLIGADO");
-            Serial.println("Regada concluida. Aguardando proxima verificacao.");
+            Serial.println("Regada concluida. Nova verificacao em 20 segundos.");
             Serial.println("-----------------------------");
         }
 
         return;
     }
 
-
     // --------------------------------------------------
-    // Checagem da umidade a cada 20 segundos
+    // Checagem normal ou verificacao apos a rega
     // --------------------------------------------------
 
-    if (currentTime - lastSensorRead >= SensorReadInterval) {
+    if (currentTime - lastSensorRead >= SensorReadInterval)
+    {
 
         lastSensorRead = currentTime;
-
 
         // -------------------------
         // Bateria
@@ -94,33 +97,31 @@ void loop() {
             0,
             1023,
             0,
-            100
-        );
+            100);
 
         batteryLevel = constrain(batteryLevel, 0, 100);
 
-
-        if (batteryLevel >= 70) {
+        if (batteryLevel >= 70)
+        {
 
             digitalWrite(HighBatteryLedPin, HIGH);
             digitalWrite(MediumBatteryLedPin, LOW);
             digitalWrite(LowBatteryLedPin, LOW);
-
         }
-        else if (batteryLevel >= 30) {
+        else if (batteryLevel >= 30)
+        {
 
             digitalWrite(HighBatteryLedPin, LOW);
             digitalWrite(MediumBatteryLedPin, HIGH);
             digitalWrite(LowBatteryLedPin, LOW);
-
         }
-        else {
+        else
+        {
 
             digitalWrite(HighBatteryLedPin, LOW);
             digitalWrite(MediumBatteryLedPin, LOW);
             digitalWrite(LowBatteryLedPin, HIGH);
         }
-
 
         // -------------------------
         // Umidade do solo
@@ -133,11 +134,9 @@ void loop() {
             0,
             1023,
             0,
-            100
-        );
+            100);
 
         humidityLevel = constrain(humidityLevel, 0, 100);
-
 
         // -------------------------
         // Umidade desejada
@@ -150,11 +149,9 @@ void loop() {
             0,
             1023,
             0,
-            100
-        );
+            100);
 
         maxHumidity = constrain(maxHumidity, 0, 100);
-
 
         // -------------------------
         // Reservatório
@@ -167,11 +164,9 @@ void loop() {
             0,
             1023,
             0,
-            100
-        );
+            100);
 
         reservatoryLevel = constrain(reservatoryLevel, 0, 100);
-
 
         // -------------------------
         // Verifica se o solo está seco
@@ -179,13 +174,14 @@ void loop() {
 
         bool soilIsDry = humidityLevel < maxHumidity;
 
-        if (soilIsDry) {
+        if (soilIsDry)
+        {
             digitalWrite(LowHumidityLedPin, HIGH);
         }
-        else {
+        else
+        {
             digitalWrite(LowHumidityLedPin, LOW);
         }
-
 
         // -------------------------
         // Verifica água e bateria
@@ -194,15 +190,14 @@ void loop() {
         bool enoughWater = reservatoryLevel > 0;
         bool enoughBattery = batteryLevel > 0;
 
-
         // -------------------------
         // Decide se deve regar
         // -------------------------
 
         bool motorOn = soilIsDry && enoughWater && enoughBattery;
 
-
-        if (motorOn) {
+        if (motorOn)
+        {
 
             digitalWrite(MotorPin, HIGH);
             digitalWrite(MotorLedPin, HIGH);
@@ -211,17 +206,16 @@ void loop() {
             wateringStartTime = currentTime;
 
             Serial.println("Motor: LIGADO");
-            Serial.println("Regando por 5 segundos...");
-
+            Serial.println("Regando por 10 segundos...");
         }
-        else {
+        else
+        {
 
             digitalWrite(MotorPin, LOW);
             digitalWrite(MotorLedPin, LOW);
 
             Serial.println("Motor: DESLIGADO");
         }
-
 
         // -------------------------
         // Serial
