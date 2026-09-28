@@ -15,7 +15,10 @@ const int HumiditySensorPin = A0;
 
 const int MotorPin = 2;
 
+const unsigned long SensorReadInterval = 20000;
 const unsigned long WateringDuration = 5000;
+
+unsigned long lastSensorRead = 0;
 
 bool watering = false;
 unsigned long wateringStartTime = 0;
@@ -63,106 +66,111 @@ void loop() {
         return;
     }
 
-    int batteryValue = analogRead(BatteryPotenciometerPin);
+    if (currentTime - lastSensorRead >= SensorReadInterval) {
 
-    int batteryLevel = map(
-        batteryValue,
-        0,
-        1023,
-        0,
-        100
-    );
+        lastSensorRead = currentTime;
 
-    batteryLevel = constrain(batteryLevel, 0, 100);
+        int batteryValue = analogRead(BatteryPotenciometerPin);
 
-    if (batteryLevel >= 70) {
+        int batteryLevel = map(
+            batteryValue,
+            0,
+            1023,
+            0,
+            100
+        );
 
-        digitalWrite(HighBatteryLedPin, HIGH);
-        digitalWrite(MediumBatteryLedPin, LOW);
-        digitalWrite(LowBatteryLedPin, LOW);
+        batteryLevel = constrain(batteryLevel, 0, 100);
 
-    }
-    else if (batteryLevel >= 30) {
+        if (batteryLevel >= 70) {
 
-        digitalWrite(HighBatteryLedPin, LOW);
-        digitalWrite(MediumBatteryLedPin, HIGH);
-        digitalWrite(LowBatteryLedPin, LOW);
+            digitalWrite(HighBatteryLedPin, HIGH);
+            digitalWrite(MediumBatteryLedPin, LOW);
+            digitalWrite(LowBatteryLedPin, LOW);
 
-    }
-    else {
+        }
+        else if (batteryLevel >= 30) {
 
-        digitalWrite(HighBatteryLedPin, LOW);
-        digitalWrite(MediumBatteryLedPin, LOW);
-        digitalWrite(LowBatteryLedPin, HIGH);
-    }
+            digitalWrite(HighBatteryLedPin, LOW);
+            digitalWrite(MediumBatteryLedPin, HIGH);
+            digitalWrite(LowBatteryLedPin, LOW);
 
-    int humiditySensorValue = analogRead(HumiditySensorPin);
+        }
+        else {
 
-    int humidityLevel = map(
-        humiditySensorValue,
-        0,
-        1023,
-        0,
-        100
-    );
+            digitalWrite(HighBatteryLedPin, LOW);
+            digitalWrite(MediumBatteryLedPin, LOW);
+            digitalWrite(LowBatteryLedPin, HIGH);
+        }
 
-    humidityLevel = constrain(humidityLevel, 0, 100);
+        int humiditySensorValue = analogRead(HumiditySensorPin);
 
-    int maxHumidityValue = analogRead(MaxHumidityPotenciometerPin);
+        int humidityLevel = map(
+            humiditySensorValue,
+            0,
+            1023,
+            0,
+            100
+        );
 
-    int maxHumidity = map(
-        maxHumidityValue,
-        0,
-        1023,
-        0,
-        100
-    );
+        humidityLevel = constrain(humidityLevel, 0, 100);
 
-    maxHumidity = constrain(maxHumidity, 0, 100);
+        int maxHumidityValue = analogRead(MaxHumidityPotenciometerPin);
 
-    int reservatoryValue = analogRead(ReservatoryPotenciometerPin);
+        int maxHumidity = map(
+            maxHumidityValue,
+            0,
+            1023,
+            0,
+            100
+        );
 
-    int reservatoryLevel = map(
-        reservatoryValue,
-        0,
-        1023,
-        0,
-        100
-    );
+        maxHumidity = constrain(maxHumidity, 0, 100);
 
-    reservatoryLevel = constrain(reservatoryLevel, 0, 100);
+        int reservatoryValue = analogRead(ReservatoryPotenciometerPin);
 
-    bool soilIsDry = humidityLevel < maxHumidity;
+        int reservatoryLevel = map(
+            reservatoryValue,
+            0,
+            1023,
+            0,
+            100
+        );
 
-    if (soilIsDry) {
-        digitalWrite(LowHumidityLedPin, HIGH);
-    }
-    else {
-        digitalWrite(LowHumidityLedPin, LOW);
-    }
+        reservatoryLevel = constrain(reservatoryLevel, 0, 100);
 
-    bool enoughWater = reservatoryLevel > 0;
-    bool enoughBattery = batteryLevel > 0;
+        bool soilIsDry = humidityLevel < maxHumidity;
 
-    bool motorOn = soilIsDry && enoughWater && enoughBattery;
+        if (soilIsDry) {
+            digitalWrite(LowHumidityLedPin, HIGH);
+        }
+        else {
+            digitalWrite(LowHumidityLedPin, LOW);
+        }
 
-    if (motorOn) {
+        bool enoughWater = reservatoryLevel > 0;
+        bool enoughBattery = batteryLevel > 0;
 
-        digitalWrite(MotorPin, HIGH);
-        digitalWrite(MotorLedPin, HIGH);
+        bool motorOn = soilIsDry && enoughWater && enoughBattery;
 
-        watering = true;
-        wateringStartTime = currentTime;
+        if (motorOn) {
 
-        Serial.println("Motor: LIGADO");
-        Serial.println("Regando por 5 segundos...");
+            digitalWrite(MotorPin, HIGH);
+            digitalWrite(MotorLedPin, HIGH);
 
-    }
-    else {
+            watering = true;
+            wateringStartTime = currentTime;
 
-        digitalWrite(MotorPin, LOW);
-        digitalWrite(MotorLedPin, LOW);
+            Serial.println("Motor: LIGADO");
+            Serial.println("Regando por 5 segundos...");
 
-        Serial.println("Motor: DESLIGADO");
+        }
+        else {
+
+            digitalWrite(MotorPin, LOW);
+            digitalWrite(MotorLedPin, LOW);
+
+            Serial.println("Motor: DESLIGADO");
+        }
     }
 }
