@@ -38,6 +38,18 @@ void setup() {
 }
 
 void loop() {
+    int batteryValue = analogRead(BatteryPotenciometerPin);
+
+    int batteryLevel = map(
+        batteryValue,
+        0,
+        1023,
+        0,
+        100
+    );
+
+    batteryLevel = constrain(batteryLevel, 0, 100);
+
     int humiditySensorValue = analogRead(HumiditySensorPin);
 
     int humidityLevel = map(
