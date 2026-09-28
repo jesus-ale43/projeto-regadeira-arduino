@@ -120,4 +120,11 @@ void loop() {
     bool enoughBattery = batteryLevel > 0;
 
     bool motorOn = soilIsDry && enoughWater && enoughBattery;
+
+    if (motorOn) {
+        digitalWrite(MotorPin, HIGH);
+    }
+    else {
+        digitalWrite(MotorPin, LOW);
+    }
 }
