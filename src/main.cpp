@@ -26,6 +26,15 @@ void setup() {
     pinMode(LowBatteryLedPin, OUTPUT);
 
     pinMode(MotorPin, OUTPUT);
+
+    digitalWrite(MotorLedPin, LOW);
+    digitalWrite(LowHumidityLedPin, LOW);
+
+    digitalWrite(HighBatteryLedPin, LOW);
+    digitalWrite(MediumBatteryLedPin, LOW);
+    digitalWrite(LowBatteryLedPin, LOW);
+
+    digitalWrite(MotorPin, LOW);
 }
 
 void loop() {
