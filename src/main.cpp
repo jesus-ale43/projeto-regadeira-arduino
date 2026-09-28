@@ -16,6 +16,7 @@ const int HumiditySensorPin = A0;
 const int MotorPin = 2;
 
 void setup() {
+    Serial.begin(9600);
 }
 
 void loop() {
