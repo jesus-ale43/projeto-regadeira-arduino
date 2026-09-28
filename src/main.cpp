@@ -38,4 +38,15 @@ void setup() {
 }
 
 void loop() {
+    int humiditySensorValue = analogRead(HumiditySensorPin);
+
+    int humidityLevel = map(
+        humiditySensorValue,
+        0,
+        1023,
+        0,
+        100
+    );
+
+    humidityLevel = constrain(humidityLevel, 0, 100);
 }
